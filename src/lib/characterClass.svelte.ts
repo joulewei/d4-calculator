@@ -14,10 +14,10 @@ interface ConditionalMultiplier {
 
 export class Character {
 	// Base Stats
-	public weaponDmg = $state(36);
+	public weaponDmg = $state(3500);
 	public skillDamage = $state(50);
-	public skillCoeff = $state(67);
-	public critChance = $state(5); // Re-added for average damage optimization
+	public skillCoeff = $state(250);
+	public critChance = $state(75); // Re-added for average damage optimization
 	public enemyDR = $state(20);    // Enemy Damage Factor (e.g. 20%)
 
 	public isVulnerable = $state(false);
@@ -26,17 +26,17 @@ export class Character {
 	private vulnerableBaseDamage = 1.2;
 
 	public additives: { [key: string]: Stat } = $state({
-        allDmg: { value: 0, displayName: 'All Damage' },
-		physical: { value: 0, displayName: 'Physical Damage' },
-		element: { value: 0, displayName: 'Elemental Damage' },
-		critDmg: { value: 0, displayName: 'Critical Strike Damage' },
-		vulnerable: { value: 0, displayName: 'Vulnerable Damage' },
+        allDmg: { value: 30, displayName: 'All Damage' },
+		physical: { value: 30, displayName: 'Physical Damage' },
+		element: { value: 30, displayName: 'Elemental Damage' },
+		critDmg: { value: 150, displayName: 'Critical Strike Damage' },
+		vulnerable: { value: 40, displayName: 'Vulnerable Damage' },
 	});
 
 	public multiplier: { [key: string]: Stat } = $state({
-		allDmgPhys: { value: 0, displayName: 'x All/Phys./Elem. Dmg' },
-		critDmgM: { value: 0, displayName: 'x Critical Strike Damage M' },
-		vulnerableMulti: { value: 0, displayName: 'x Vulnerable Damage' }
+		allDmgPhys: { value: 100, displayName: 'x All/Phys./Elem. Dmg' },
+		critDmgM: { value: 450, displayName: 'x Critical Strike Damage M' },
+		vulnerableMulti: { value: 150, displayName: 'x Vulnerable Damage' }
 	});
 
 	public additionalMultipliers: { [key: string]: ConditionalMultiplier } = $state({
