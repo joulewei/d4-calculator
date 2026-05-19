@@ -39,22 +39,72 @@
     </header>
 
     <section class="bg-slate-800/40 border border-slate-800 p-2 rounded-sm shadow-sm">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-500 mb-2">Base Stats</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            <div class="grid grid-cols-12 items-center gap-2 bg-slate-950/40 px-2 py-1 border border-slate-800 rounded-sm">
-                <label for="weaponDmg" class="col-span-4 text-xs font-medium text-slate-400">Weapon Damage</label>
-                
-                <input 
-                    id="weaponDmg"
-                    type="number" 
-                    bind:value={player.weaponDmg} 
-                    class="col-span-3 bg-slate-950 border border-slate-700 rounded-sm p-0.5 text-right font-mono text-xs text-white focus:border-orange-500 focus:outline-none"
-                />
-                
+        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-500 mb-2 border-b border-slate-800 pb-1">Base Stats</h2>
+        <div class="flex flex-col gap-1">
+            
+            <div class="grid grid-cols-12 items-center gap-2 bg-slate-950/20 hover:bg-slate-800/50 px-2 py-1 border border-slate-800/60 rounded-sm transition-colors">
+                <label for="weaponDmg" class="col-span-5 text-xs font-medium text-slate-300">Weapon Damage</label>
+                <div class="col-span-2 relative flex items-center">
+                    <input 
+                        id="weaponDmg"
+                        type="number" 
+                        bind:value={player.weaponDmg} 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-sm p-0.5 text-right font-mono text-xs text-white focus:border-orange-500 focus:outline-none"
+                    />
+                </div>
                 <span class="col-span-5 text-right font-mono text-[11px] text-green-400 font-medium">
                     +{formatNumber(player.getWeaponDmgGain(WEAPON_STEP))} <span class="text-[9px] text-slate-500">per {WEAPON_STEP}</span>
                 </span>
             </div>
+
+            <div class="grid grid-cols-12 items-center gap-2 bg-slate-950/20 hover:bg-slate-800/50 px-2 py-1 border border-slate-800/60 rounded-sm transition-colors">
+                <label for="critChance" class="col-span-5 text-xs font-medium text-slate-300">Crit Chance</label>
+                <div class="col-span-2 relative flex items-center">
+                    <input 
+                        id="critChance"
+                        type="number" 
+                        bind:value={player.critChance} 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-sm p-0.5 pr-4 text-right font-mono text-xs text-white focus:border-orange-500 focus:outline-none"
+                    />
+                    <span class="absolute right-1 text-[10px] text-slate-500 font-mono">%</span>
+                </div>
+                <span class="col-span-5 text-right font-mono text-[11px] text-green-400 font-medium">
+                    +{formatNumber(player.getCritChanceGain(5))} <span class="text-[9px] text-slate-500">per 5%</span>
+                </span>
+            </div>
+
+            <div class="grid grid-cols-12 items-center gap-2 bg-slate-950/20 hover:bg-slate-800/50 px-2 py-1 border border-slate-800/60 rounded-sm transition-colors">
+                <label for="skillDamage" class="col-span-5 text-xs font-medium text-slate-300">Skill Damage</label>
+                <div class="col-span-2 relative flex items-center">
+                    <input 
+                        id="skillDamage"
+                        type="number" 
+                        bind:value={player.skillDamage} 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-sm p-0.5 pr-4 text-right font-mono text-xs text-white focus:border-orange-500 focus:outline-none"
+                    />
+                    <span class="absolute right-1 text-[10px] text-slate-500 font-mono">%</span>
+                </div>
+                <span class="col-span-5 text-right font-mono text-[11px] text-green-400 font-medium">
+                    +{formatNumber(player.getSkillDamageGain(10))} <span class="text-[9px] text-slate-500">per 10%</span>
+                </span>
+            </div>
+
+            <div class="grid grid-cols-12 items-center gap-2 bg-slate-950/20 hover:bg-slate-800/50 px-2 py-1 border border-slate-800/60 rounded-sm transition-colors">
+                <label for="skillCoeff" class="col-span-5 text-xs font-medium text-slate-300">Skill Coeff.</label>
+                <div class="col-span-2 relative flex items-center">
+                    <input 
+                        id="skillCoeff"
+                        type="number" 
+                        bind:value={player.skillCoeff} 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-sm p-0.5 pr-4 text-right font-mono text-xs text-white focus:border-orange-500 focus:outline-none"
+                    />
+                    <span class="absolute right-1 text-[10px] text-slate-500 font-mono">%</span>
+                </div>
+                <span class="col-span-5 text-right font-mono text-[11px] text-green-400 font-medium">
+                    +{formatNumber(player.getSkillCoeffGain(5))} <span class="text-[9px] text-slate-500">per 5%</span>
+                </span>
+            </div>
+
         </div>
     </section>
 
