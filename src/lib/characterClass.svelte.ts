@@ -49,20 +49,17 @@ export class Character {
 	private vulnerableBaseDamage = 1.2;
 
 	public additives: { [key: string]: Stat } = $state({
+		allDmg: { value: 0, displayName: 'All Damage' },
 		physical: { value: 0, displayName: 'Physical Damage' },
 		element: { value: 0, displayName: 'Elemental Damage' },
 		critDmg: { value: 0, displayName: 'Critical Strike Damage' },
 		vulnerable: { value: 0, displayName: 'Vulnerable Damage' },
 		overpower: { value: 0, displayName: 'Overpower Damage' },
-		allDmg: { value: 0, displayName: 'All Damage' },
-		cutthroat: { value: 0, displayName: 'Cutthroat Damage' }
 	});
 
 	public multiplier: { [key: string]: Stat } = $state({
-		allDmgPhys: { value: 0, displayName: 'All Dmg + Phys M' },
-		chipPhys: { value: 0, displayName: 'Chip Phys' },
+		allDmgPhys: { value: 0, displayName: 'All Dmg + Phys M + Elem. M' },
 		critDmgM: { value: 0, displayName: 'Critical Strike Damage M' },
-		chipMulti: { value: 0, displayName: 'Chip Multi' },
 		vulnerableMulti: { value: 0, displayName: 'Vulnerable Damage Multiplier' }
 	});
 
@@ -73,8 +70,8 @@ export class Character {
 			displayName: 'Heir of Perdition (Mythic)',
 			isCrit: false
 		},
-		grandfather: { active: false, value: 150, displayName: 'Grandfather', isCrit: true },
-		crownOfLucion: { active: false, value: 75, displayName: 'Crown of Lucion', isCrit: false }
+		grandfather: { active: false, value: 150, displayName: 'Grandfather (Mythic)', isCrit: true },
+		crownOfLucion: { active: false, value: 75, displayName: 'Crown of Lucion (Unique)', isCrit: false }
 	});
 
 	public getSnapshot() {
