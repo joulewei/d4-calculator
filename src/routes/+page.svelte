@@ -26,11 +26,64 @@
 <main
 	class="mx-auto min-h-screen max-w-5xl space-y-4 bg-slate-900 p-4 font-sans text-slate-200 antialiased"
 >
+	<section
+		class="space-y-2 rounded-sm border border-slate-800 bg-slate-950/20 p-3 text-xs text-slate-400 shadow-sm"
+	>
+		<div class="flex items-center justify-between border-b border-slate-800/60 pb-1.5">
+			<h3 class="flex items-center gap-1 font-bold tracking-wide text-orange-400">
+				💡 Quick Start Guide
+			</h3>
+			<span
+				class="rounded-sm border border-orange-900/50 bg-orange-950/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider text-orange-400 uppercase"
+			>
+				Beta / In Development
+			</span>
+		</div>
+
+		<ul class="list-disc space-y-1 pl-4 text-slate-300">
+			<li>
+				<strong class="text-white">Use Gear Stats:</strong> Input values directly from your
+				equipment and Paragon nodes. Do <span class="text-amber-500">not</span> use the in-game character
+				screen (it mixes stats up).
+			</li>
+			<li>
+				<strong class="text-white">Watch the Green Gains:</strong> The green indicators on the right
+				show exactly how much <span class="font-medium text-orange-400">Average Damage</span> you gain
+				per upgrade step.
+			</li>
+			<li>
+				<strong class="text-white">Optimize Upgrades:</strong> Use these gains to instantly decide which
+				item or temper scales your build better.
+			</li>
+			<li>
+				<strong class="text-white"> Credits:</strong> The calculations are based on
+				<span class="font-medium text-orange-400"
+					><a
+						href="https://www.youtube.com/watch?v=2GKhCdxxqp8"
+						target="_blank"
+						rel="noopener noreferrer">Avarilyn's Youtube Video</a
+					></span
+				>. Check him out and leave him a follow.
+			</li>
+		</ul>
+
+		<div
+			class="flex items-start gap-1.5 border-t border-slate-800/40 pt-1.5 text-[11px] text-slate-500 italic"
+		>
+			<span class="shrink-0">🚧</span>
+			<p>
+				<span class="font-medium text-slate-400 not-italic">Roadmap:</span> This tool is under active
+				development. Advanced gear comparison (Profile A vs B) and build imports (Maxroll, d4builds) are
+				being worked on and will roll out step-by-step!
+			</p>
+		</div>
+	</section>
+
 	<header
 		class="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-2 sm:flex-row sm:items-center"
 	>
 		<h1 class="flex items-center gap-2 text-xl font-bold tracking-tight text-orange-500">
-			⚔️ Diablo 4 Stat Calculator
+			⚔️ D4 Stat Engine
 		</h1>
 
 		<div
@@ -40,30 +93,147 @@
 				<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase"
 					>Normal Hit:</span
 				>
-				<span class="font-mono text-sm font-bold text-slate-300">
-					{formatNumber(player.normalDamage)}
-				</span>
+				<span class="font-mono text-sm font-bold text-slate-300"
+					>{formatNumber(player.normalDamage)}</span
+				>
 			</div>
 			<div class="h-6 border-l border-slate-800/80"></div>
 			<div class="flex flex-col text-right sm:text-left">
 				<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase"
 					>Crit Hit:</span
 				>
-				<span class="font-mono text-sm font-bold text-slate-300">
-					{formatNumber(player.critDamage)}
-				</span>
+				<span class="font-mono text-sm font-bold text-slate-300"
+					>{formatNumber(player.critDamage)}</span
+				>
 			</div>
 			<div class="h-6 border-l border-slate-800/80"></div>
 			<div class="flex flex-col text-right sm:text-left">
 				<span class="text-[10px] font-semibold tracking-wider text-orange-300 uppercase"
 					>Average Dmg:</span
 				>
-				<span class="font-mono text-base font-bold text-orange-400">
-					{formatNumber(player.currentDamage)}
-				</span>
+				<span class="font-mono text-base font-bold text-orange-400"
+					>{formatNumber(player.currentDamage)}</span
+				>
 			</div>
 		</div>
 	</header>
+
+	<section
+		class="space-y-3 rounded-sm border border-slate-800 bg-slate-950/50 p-3 font-mono text-[11px] text-slate-400"
+	>
+		<span class="block font-sans text-xs font-bold text-amber-500"
+			>🧮 Live Equation Transparency (a × b × c × d...)</span
+		>
+
+		<div class="space-y-1">
+			<span class="block font-sans text-[10px] font-semibold text-slate-500 uppercase"
+				>Normal Hit Formula:</span
+			>
+			<div
+				class="flex flex-wrap items-center gap-x-2 gap-y-1 overflow-x-auto rounded-sm border border-slate-800/50 bg-slate-950/80 p-2 text-slate-300"
+			>
+				<div class="text-center">
+					<span class="font-bold text-white">{player.breakdown.normalEq.weaponDmg}</span><span
+						class="block text-[9px] text-slate-600">WpnDmg</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.normalEq.additives.toFixed(3)}</span><span
+						class="block text-[9px] text-slate-600">Additive</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.normalEq.skill.toFixed(3)}</span><span
+						class="block text-[9px] text-slate-600">Skill</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.normalEq.multipliers.toFixed(3)}</span
+					><span class="block text-[9px] text-slate-600">GearMult</span>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.normalEq.enemy.toFixed(2)}</span><span
+						class="block text-[9px] text-slate-600">EnemyDR</span
+					>
+				</div>
+				{#if player.isVulnerable}
+					<span class="font-bold text-orange-500">×</span>
+					<div class="text-center">
+						<span class="font-medium text-emerald-400"
+							>{player.breakdown.normalEq.vulnBase.toFixed(1)}</span
+						><span class="block text-[9px] text-slate-600">VulnBase</span>
+					</div>
+				{/if}
+				<span class="font-bold text-slate-500">=</span>
+				<span
+					class="rounded-sm border border-emerald-900/30 bg-emerald-950/30 px-1 text-xs font-bold text-emerald-400"
+					>{formatNumber(player.normalDamage)}</span
+				>
+			</div>
+		</div>
+
+		<div class="space-y-1">
+			<span class="block font-sans text-[10px] font-semibold text-orange-400/80 uppercase"
+				>Crit Hit Formula:</span
+			>
+			<div
+				class="flex flex-wrap items-center gap-x-2 gap-y-1 overflow-x-auto rounded-sm border border-slate-800/50 bg-slate-950/80 p-2 text-slate-300"
+			>
+				<div class="text-center">
+					<span class="font-bold text-white">{player.breakdown.critEq.weaponDmg}</span><span
+						class="block text-[9px] text-slate-600">WpnDmg</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.critEq.additives.toFixed(3)}</span><span
+						class="block text-[9px] text-slate-600">Additive</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.critEq.skill.toFixed(3)}</span><span
+						class="block text-[9px] text-slate-600">Skill</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.critEq.multipliers.toFixed(3)}</span><span
+						class="block text-[9px] text-slate-600">GearMult</span
+					>
+				</div>
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="text-slate-200">{player.breakdown.critEq.enemy.toFixed(2)}</span><span
+						class="block text-[9px] text-slate-600">EnemyDR</span
+					>
+				</div>
+				{#if player.isVulnerable}
+					<span class="font-bold text-orange-500">×</span>
+					<div class="text-center">
+						<span class="font-medium text-emerald-400"
+							>{player.breakdown.critEq.vulnBase.toFixed(1)}</span
+						><span class="block text-[9px] text-slate-600">VulnBase</span>
+					</div>
+				{/if}
+				<span class="font-bold text-orange-500">×</span>
+				<div class="text-center">
+					<span class="font-medium text-amber-400"
+						>{player.breakdown.critEq.critBase.toFixed(1)}</span
+					><span class="block text-[9px] text-slate-600">CritBase</span>
+				</div>
+				<span class="font-bold text-slate-500">=</span>
+				<span
+					class="rounded-sm border border-orange-900/30 bg-orange-950/30 px-1 text-xs font-bold text-orange-400"
+					>{formatNumber(player.critDamage)}</span
+				>
+			</div>
+		</div>
+	</section>
 
 	<section class="rounded-sm border border-slate-800 bg-slate-800/40 p-2 shadow-sm">
 		<h2
@@ -105,7 +275,7 @@
 					/>
 				</div>
 				<span class="col-span-5 text-right font-mono text-[11px] font-medium text-green-400">
-					+{formatNumber(player.getWeaponDmgGain(WEAPON_STEP))}
+					+{formatNumber(player.getBaseGain('weaponDmg', WEAPON_STEP))}
 					<span class="text-[9px] text-slate-500">per {WEAPON_STEP}</span>
 				</span>
 			</div>
@@ -114,7 +284,7 @@
 				class="grid grid-cols-12 items-center gap-2 rounded-sm border border-slate-800/60 bg-slate-950/20 px-2 py-1 transition-colors hover:bg-slate-800/50"
 			>
 				<label for="critChance" class="col-span-5 text-xs font-medium text-slate-300"
-					>Crit Chance</label
+					>Critical Strike Chance</label
 				>
 				<div class="relative col-span-2 flex items-center">
 					<input
@@ -126,7 +296,7 @@
 					<span class="absolute right-1 font-mono text-[10px] text-slate-500">%</span>
 				</div>
 				<span class="col-span-5 text-right font-mono text-[11px] font-medium text-green-400">
-					+{formatNumber(player.getCritChanceGain(5))}
+					+{formatNumber(player.getBaseGain('critChance', 5))}
 					<span class="text-[9px] text-slate-500">per 5%</span>
 				</span>
 			</div>
@@ -147,7 +317,7 @@
 					<span class="absolute right-1 font-mono text-[10px] text-slate-500">%</span>
 				</div>
 				<span class="col-span-5 text-right font-mono text-[11px] font-medium text-green-400">
-					+{formatNumber(player.getSkillDamageGain(STAT_STEP))}
+					+{formatNumber(player.getBaseGain('skillDamage', STAT_STEP))}
 					<span class="text-[9px] text-slate-500">per {STAT_STEP}%</span>
 				</span>
 			</div>
@@ -168,7 +338,7 @@
 					<span class="absolute right-1 font-mono text-[10px] text-slate-500">%</span>
 				</div>
 				<span class="col-span-5 text-right font-mono text-[11px] font-medium text-green-400">
-					+{formatNumber(player.getSkillCoeffGain(5))}
+					+{formatNumber(player.getBaseGain('skillCoeff', 5))}
 					<span class="text-[9px] text-slate-500">per 5%</span>
 				</span>
 			</div>
@@ -189,7 +359,7 @@
 					<span class="absolute right-1 font-mono text-[10px] text-slate-500">%</span>
 				</div>
 				<span class="col-span-5 text-right font-mono text-[11px] font-medium text-green-400">
-					+{formatNumber(player.getEnemyDRGain(5))}
+					+{formatNumber(player.getBaseGain('enemyDR', 5))}
 					<span class="text-[9px] text-slate-500">per 5%</span>
 				</span>
 			</div>

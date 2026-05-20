@@ -1,24 +1,47 @@
 // src/lib/characterClass.svelte.ts
 
-interface Stat {
+export interface Stat {
 	value: number;
 	displayName: string;
 }
 
-interface ConditionalMultiplier {
+export interface ConditionalMultiplier {
 	active: boolean;
 	value: number;
 	displayName: string;
 	isCrit: boolean;
 }
 
+export interface CalculationBreakdown {
+	normalHit: number;
+	critHit: number;
+	averageDmg: number;
+	normalEq: {
+		weaponDmg: number;
+		additives: number;
+		skill: number;
+		multipliers: number;
+		enemy: number;
+		vulnBase: number;
+	};
+	critEq: {
+		weaponDmg: number;
+		additives: number;
+		skill: number;
+		multipliers: number;
+		enemy: number;
+		vulnBase: number;
+		critBase: number;
+	};
+}
+
 export class Character {
 	// Base Stats
-	public weaponDmg = $state(3500);
-	public skillDamage = $state(50);
-	public skillCoeff = $state(250);
-	public critChance = $state(75); // Re-added for average damage optimization
-	public enemyDR = $state(20);    // Enemy Damage Factor (e.g. 20%)
+	public weaponDmg = $state(36);
+	public skillDamage = $state(102);
+	public skillCoeff = $state(67);
+	public critChance = $state(50);
+	public enemyDR = $state(20);
 
 	public isVulnerable = $state(false);
 
@@ -26,169 +49,231 @@ export class Character {
 	private vulnerableBaseDamage = 1.2;
 
 	public additives: { [key: string]: Stat } = $state({
-        allDmg: { value: 30, displayName: 'All Damage' },
-		physical: { value: 30, displayName: 'Physical Damage' },
-		element: { value: 30, displayName: 'Elemental Damage' },
-		critDmg: { value: 150, displayName: 'Critical Strike Damage' },
-		vulnerable: { value: 40, displayName: 'Vulnerable Damage' },
+		physical: { value: 0, displayName: 'Physical Damage' },
+		element: { value: 0, displayName: 'Elemental Damage' },
+		critDmg: { value: 0, displayName: 'Critical Strike Damage' },
+		vulnerable: { value: 0, displayName: 'Vulnerable Damage' },
+		overpower: { value: 0, displayName: 'Overpower Damage' },
+		allDmg: { value: 0, displayName: 'All Damage' },
+		cutthroat: { value: 0, displayName: 'Cutthroat Damage' }
 	});
 
 	public multiplier: { [key: string]: Stat } = $state({
-		allDmgPhys: { value: 100, displayName: 'x All/Phys./Elem. Dmg' },
-		critDmgM: { value: 450, displayName: 'x Critical Strike Damage M' },
-		vulnerableMulti: { value: 150, displayName: 'x Vulnerable Damage' }
+		allDmgPhys: { value: 0, displayName: 'All Dmg + Phys M' },
+		chipPhys: { value: 0, displayName: 'Chip Phys' },
+		critDmgM: { value: 0, displayName: 'Critical Strike Damage M' },
+		chipMulti: { value: 0, displayName: 'Chip Multi' },
+		vulnerableMulti: { value: 0, displayName: 'Vulnerable Damage Multiplier' }
 	});
 
 	public additionalMultipliers: { [key: string]: ConditionalMultiplier } = $state({
-		heirOfPerdition: { active: false, value: 80, displayName: 'Heir of Perdition (Mythic)', isCrit: false },
+		heirOfPerdition: {
+			active: false,
+			value: 80,
+			displayName: 'Heir of Perdition (Mythic)',
+			isCrit: false
+		},
 		grandfather: { active: false, value: 150, displayName: 'Grandfather', isCrit: true },
 		crownOfLucion: { active: false, value: 75, displayName: 'Crown of Lucion', isCrit: false }
 	});
 
-	// Internal helper to get precise normal or crit hits
-	private _calculateHit(
-		isCrit: boolean,
-		additives = this.additives,
-		multiplier = this.multiplier,
-		additional = this.additionalMultipliers,
-		weaponDmg = this.weaponDmg,
-		skillDamage = this.skillDamage,
-		skillCoeff = this.skillCoeff,
-		enemyDR = this.enemyDR,
-		isVulnerable = this.isVulnerable
-	) {
-		const prodAdditionalNormal = Object.values(additional)
-			.filter((m) => m.active)
-			.filter((m) => !m.isCrit)
-			.reduce((acc, m) => acc * (1 + m.value / 100), 1);
-
-		const prodAdditionalCrit = Object.values(additional)
-			.filter((m) => m.active)
-			.filter((m) => m.isCrit)
-			.reduce((acc, m) => acc * (1 + m.value / 100), 1);
-
-		const skillMult = (1 + skillDamage / 100) * (skillCoeff / 100);
-
-		if (!isCrit) {
-			const sumAdditivesNormal = Object.entries(additives)
-				.filter(([key]) => key !== 'critDmg')
-				.reduce((acc, [_, stat]) => acc + stat.value, 0) / 100;
-
-			const prodFactorsNormal = Object.entries(multiplier)
-				.filter(([key]) => key !== 'critDmgM' && key !== 'combatCrit')
-				.reduce((acc, [_, stat]) => acc * (1 + stat.value / 100), 1);
-
-			return (
-				weaponDmg *
-				(1 + sumAdditivesNormal) *
-				skillMult *
-				prodFactorsNormal *
-				prodAdditionalNormal *
-				(enemyDR / 100) *
-				(isVulnerable ? this.vulnerableBaseDamage : 1)
-			);
-		} else {
-			const sumAdditivesCrit = Object.values(additives).reduce((acc, stat) => acc + stat.value, 0) / 100;
-			const prodFactorsCrit = Object.values(multiplier).reduce((acc, stat) => acc * (1 + stat.value / 100), 1);
-
-			return (
-				weaponDmg *
-				(1 + sumAdditivesCrit) *
-				skillMult *
-				prodFactorsCrit *
-				prodAdditionalNormal *
-				prodAdditionalCrit *
-				(enemyDR / 100) *
-				this.critBaseDamage *
-				(isVulnerable ? this.vulnerableBaseDamage : 1)
-			);
-		}
+	public getSnapshot() {
+		return JSON.parse(
+			JSON.stringify({
+				weaponDmg: this.weaponDmg,
+				skillDamage: this.skillDamage,
+				skillCoeff: this.skillCoeff,
+				critChance: this.critChance,
+				enemyDR: this.enemyDR,
+				isVulnerable: this.isVulnerable,
+				additives: this.additives,
+				multiplier: this.multiplier,
+				additionalMultipliers: this.additionalMultipliers
+			})
+		);
 	}
 
-	// Main calculation method for weighted average damage
-	private _calculate(
-		additives = this.additives,
-		multiplier = this.multiplier,
-		additional = this.additionalMultipliers,
-		weaponDmg = this.weaponDmg,
-		skillDamage = this.skillDamage,
-		skillCoeff = this.skillCoeff,
-		enemyDR = this.enemyDR,
-		critChance = this.critChance,
-		isVulnerable = this.isVulnerable
-	) {
-		const normal = this._calculateHit(false, additives, multiplier, additional, weaponDmg, skillDamage, skillCoeff, enemyDR, isVulnerable);
-		const crit = this._calculateHit(true, additives, multiplier, additional, weaponDmg, skillDamage, skillCoeff, enemyDR, isVulnerable);
-		const cc = Math.min(Math.max(critChance, 0), 100) / 100;
-		return (1 - cc) * normal + cc * crit;
+	private _calculateBreakdown(snap: any): CalculationBreakdown {
+		const skillMult = (1 + snap.skillDamage / 100) * (snap.skillCoeff / 100);
+		const enemyFactor = snap.enemyDR / 100;
+		const vulnBaseFactor = snap.isVulnerable ? this.vulnerableBaseDamage : 1;
+		const critBaseFactor = this.critBaseDamage;
+
+		// --- 1. NON-CRIT PATH ---
+		// FIXED: Filter out vulnerable items if target is not vulnerable
+		const sumAdditivesNormal = Object.entries(snap.additives)
+			.filter(([key]) => key !== 'critDmg')
+			.filter(([key]) => snap.isVulnerable || key !== 'vulnerable')
+			.reduce((acc, [_, stat]: any) => acc + stat.value, 0);
+
+		const prodFactorsNormal = Object.entries(snap.multiplier)
+			.filter(([key]) => key !== 'critDmgM')
+			.filter(([key]) => snap.isVulnerable || key !== 'vulnerableMulti')
+			.reduce((acc, [_, stat]: any) => acc * (1 + stat.value / 100), 1);
+
+		const prodAdditionalNormal = Object.values(snap.additionalMultipliers)
+			.filter((m: any) => m.active && !m.isCrit)
+			.reduce((acc: number, m: any) => acc * (1 + m.value / 100), 1);
+
+		const totalMultNormal = prodFactorsNormal * prodAdditionalNormal;
+		const normalHit =
+			snap.weaponDmg *
+			(1 + sumAdditivesNormal / 100) *
+			skillMult *
+			totalMultNormal *
+			enemyFactor *
+			vulnBaseFactor;
+
+		// --- 2. CRIT PATH ---
+		// FIXED: Filter out vulnerable items if target is not vulnerable
+		const sumAdditivesCrit = Object.entries(snap.additives)
+			.filter(([key]) => snap.isVulnerable || key !== 'vulnerable')
+			.reduce((acc: number, [_, stat]: any) => acc + stat.value, 0);
+
+		const prodFactorsCrit = Object.entries(snap.multiplier)
+			.filter(([key]) => snap.isVulnerable || key !== 'vulnerableMulti')
+			.reduce((acc: number, [_, stat]: any) => acc * (1 + stat.value / 100), 1);
+
+		const prodAdditionalCritAll = Object.values(snap.additionalMultipliers)
+			.filter((m: any) => m.active)
+			.reduce((acc: number, m: any) => acc * (1 + m.value / 100), 1);
+
+		const totalMultCrit = prodFactorsCrit * prodAdditionalCritAll;
+		const critHit =
+			snap.weaponDmg *
+			(1 + sumAdditivesCrit / 100) *
+			skillMult *
+			totalMultCrit *
+			enemyFactor *
+			vulnBaseFactor *
+			critBaseFactor;
+
+		// --- 3. WEIGHTED AVERAGE ---
+		const cc = Math.min(Math.max(snap.critChance, 0), 100) / 100;
+		const averageDmg = (1 - cc) * normalHit + cc * critHit;
+
+		return {
+			normalHit,
+			critHit,
+			averageDmg,
+			normalEq: {
+				weaponDmg: snap.weaponDmg,
+				additives: 1 + sumAdditivesNormal / 100,
+				skill: skillMult,
+				multipliers: totalMultNormal,
+				enemy: enemyFactor,
+				vulnBase: vulnBaseFactor
+			},
+			critEq: {
+				weaponDmg: snap.weaponDmg,
+				additives: 1 + sumAdditivesCrit / 100,
+				skill: skillMult,
+				multipliers: totalMultCrit,
+				enemy: enemyFactor,
+				vulnBase: vulnBaseFactor,
+				critBase: critBaseFactor
+			}
+		};
 	}
 
+	get breakdown() {
+		return this._calculateBreakdown(this.getSnapshot());
+	}
 	get currentDamage() {
-		return this._calculate();
+		return this.breakdown.averageDmg;
 	}
-
 	get normalDamage() {
-		return this._calculateHit(false);
+		return this.breakdown.normalHit;
 	}
-
 	get critDamage() {
-		return this._calculateHit(true);
+		return this.breakdown.critHit;
 	}
 
-	// Upgrade simulations based on Average/Expected Damage
-	public getWeaponDmgGain(step: number = 100): number {
-		return this._calculate(this.additives, this.multiplier, this.additionalMultipliers, this.weaponDmg + step) - this.currentDamage;
+	private _getGain(modifier: (snap: any) => void): number {
+		const snap = this.getSnapshot();
+		const baseDmg = this._calculateBreakdown(snap).averageDmg;
+		modifier(snap);
+		const upgradedDmg = this._calculateBreakdown(snap).averageDmg;
+		return upgradedDmg - baseDmg;
 	}
 
-	public getSkillDamageGain(step: number = 10): number {
-		return this._calculate(this.additives, this.multiplier, this.additionalMultipliers, this.weaponDmg, this.skillDamage + step) - this.currentDamage;
-	}
-
-	public getSkillCoeffGain(step: number = 5): number {
-		return this._calculate(this.additives, this.multiplier, this.additionalMultipliers, this.weaponDmg, this.skillDamage, this.skillCoeff + step) - this.currentDamage;
-	}
-
-	public getCritChanceGain(step: number = 5): number {
-		return this._calculate(this.additives, this.multiplier, this.additionalMultipliers, this.weaponDmg, this.skillDamage, this.skillCoeff, this.enemyDR, this.critChance + step) - this.currentDamage;
-	}
-
-	public getEnemyDRGain(step: number = 5): number {
-		return this._calculate(this.additives, this.multiplier, this.additionalMultipliers, this.weaponDmg, this.skillDamage, this.skillCoeff, this.enemyDR + step) - this.currentDamage;
+	public getBaseGain(
+		field: 'weaponDmg' | 'skillDamage' | 'skillCoeff' | 'critChance' | 'enemyDR',
+		step: number
+	): number {
+		return this._getGain((snap) => (snap[field] += step));
 	}
 
 	public getAdditiveGain(key: string, step: number = 10): number {
-		const virtualAdditives = { ...this.additives, [key]: { ...this.additives[key], value: this.additives[key].value + step } };
-		return this._calculate(virtualAdditives, this.multiplier) - this.currentDamage;
+		return this._getGain((snap) => (snap.additives[key].value += step));
 	}
 
 	public getMultiplierGain(key: string, step: number = 10): number {
-		const virtualMultiplier = { ...this.multiplier, [key]: { ...this.multiplier[key], value: this.multiplier[key].value + step } };
-		return this._calculate(this.additives, virtualMultiplier) - this.currentDamage;
+		return this._getGain((snap) => (snap.multiplier[key].value += step));
+	}
+
+	private _getTotalContribution(modifier: (snap: any) => void): number {
+		const snap = this.getSnapshot();
+		const currentDmg = this._calculateBreakdown(snap).averageDmg;
+		modifier(snap);
+		const zeroedDmg = this._calculateBreakdown(snap).averageDmg;
+		return currentDmg - zeroedDmg;
 	}
 
 	public getAdditiveTotalGain(key: string): number {
-		const virtualZero = { ...this.additives, [key]: { ...this.additives[key], value: 0 } };
-		return this.currentDamage - this._calculate(virtualZero);
+		return this._getTotalContribution((snap) => (snap.additives[key].value = 0));
 	}
 
 	public getMultiplierTotalGain(key: string): number {
-		const virtualZero = { ...this.multiplier, [key]: { ...this.multiplier[key], value: 0 } };
-		return this.currentDamage - this._calculate(this.additives, virtualZero);
+		return this._getTotalContribution((snap) => (snap.multiplier[key].value = 0));
 	}
 
 	public getAdditionalMultiplierTotalGain(key: string): number {
-		const virtualActive = { ...this.additionalMultipliers, [key]: { ...this.additionalMultipliers[key], active: true } };
-		const virtualInactive = { ...this.additionalMultipliers, [key]: { ...this.additionalMultipliers[key], active: false } };
-		return this._calculate(this.additives, this.multiplier, virtualActive) - this._calculate(this.additives, this.multiplier, virtualInactive);
+		const snapActive = this.getSnapshot();
+		snapActive.additionalMultipliers[key].active = true;
+		const snapInactive = this.getSnapshot();
+		snapInactive.additionalMultipliers[key].active = false;
+		return (
+			this._calculateBreakdown(snapActive).averageDmg -
+			this._calculateBreakdown(snapInactive).averageDmg
+		);
+	}
+
+	public loadSnapshot(snap: any) {
+		this.weaponDmg = snap.weaponDmg;
+		this.skillDamage = snap.skillDamage;
+		this.skillCoeff = snap.skillCoeff;
+		this.critChance = snap.critChance;
+		this.enemyDR = snap.enemyDR;
+		this.isVulnerable = snap.isVulnerable;
+
+		for (const key in snap.additives) {
+			if (this.additives[key]) this.additives[key].value = snap.additives[key].value;
+		}
+		for (const key in snap.multiplier) {
+			if (this.multiplier[key]) this.multiplier[key].value = snap.multiplier[key].value;
+		}
+		for (const key in snap.additionalMultipliers) {
+			if (this.additionalMultipliers[key]) {
+				this.additionalMultipliers[key].value = snap.additionalMultipliers[key].value;
+				this.additionalMultipliers[key].active = snap.additionalMultipliers[key].active;
+			}
+		}
 	}
 
 	public addCustomAdditive(displayName: string, initialValue: number = 0) {
 		if (!displayName.trim()) return;
-		this.additives['custom_add_' + Date.now()] = { value: initialValue, displayName: displayName.trim() };
+		this.additives['custom_add_' + Date.now()] = {
+			value: initialValue,
+			displayName: displayName.trim()
+		};
 	}
 
 	public addCustomMultiplier(displayName: string, initialValue: number = 0) {
 		if (!displayName.trim()) return;
-		this.multiplier['custom_mult_' + Date.now()] = { value: initialValue, displayName: displayName.trim() };
+		this.multiplier['custom_mult_' + Date.now()] = {
+			value: initialValue,
+			displayName: displayName.trim()
+		};
 	}
 }
